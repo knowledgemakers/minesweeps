@@ -1,10 +1,28 @@
 #!/usr/bin/env python
 # coding: utf8
 
-import math
 from minesweepingpath import MineSweepingPath
 import pygame
-from random import randint
+import RPi.GPIO as GPIO
+
+
+
+
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(7, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+def go_button_pressed(channel):
+    if GPIO.input(7): # and check again the input
+        print("Pressed!")
+        newevent = pygame.event.Event(pygame.locals.KEYDOWN, unicode="a", key=pygame.locals.K_a,
+                                      mod=pygame.locals.KMOD_NONE)  # create the event
+        pygame.event.post(newevent)  # add the event to the queue
+        # stop detection for 20 sec
+        GPIO.remove_event_detect(7)
+        GPIO.add_event_detect(7, GPIO.RISING, callback=go_button_pressed, bouncetime=300)
+
+
 
 
 def generate_paths(current_path):
@@ -77,6 +95,7 @@ def main():
 
     grid_position = (50, 50)
     log_position = (400, 200)
+    GPIO.add_event_detect(7, GPIO.RISING, callback=my_callback, bouncetime=300)
 
     while running:
         for event in pygame.event.get():
