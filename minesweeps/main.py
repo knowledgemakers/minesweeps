@@ -56,6 +56,8 @@ MARGIN = 5
 
 
 def main():
+    gpio_setup()
+
     pygame.init()
     (width, height) = (600, 400)
     screen = pygame.display.set_mode((width, height))
@@ -89,14 +91,13 @@ def main():
 
     grid_position = (50, 50)
     log_position = (400, 200)
-
     while running:
 
         next_block=False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN
+            if event.type == pygame.KEYDOWN:
                 next_block=True
         if next_block or GPIO.input(7):
             print("next block!")
