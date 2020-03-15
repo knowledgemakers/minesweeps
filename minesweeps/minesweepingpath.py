@@ -59,7 +59,7 @@ class MineSweepingPath():
         #if budget_mean < - 0.05 or budget_mean > 0.05:
         #    self.difficulty_budget -= budget_mean
         if self.current_step%5==0:
-            diff_sum = sum(path.difficulties[-5:])
+            diff_sum = sum(self.difficulties[-5:])
             self.difficulty_budget += self.target_difficulty-diff_sum
         self.add_step(next_possibility)
         self.current_step += 1
