@@ -1,4 +1,7 @@
 import math
+from random import randint
+import matplotlib.pyplot as plt
+from statistics import mean
 
 
 class MineSweepingPath():
@@ -6,6 +9,11 @@ class MineSweepingPath():
     totalDifficulty = 0
     difficulties = []
     current_orientation = 0
+    difficulties = [1.5, 2.15, 2.85, 1.5]
+    difficulty_budget = 0
+    current_step = 0
+    budgets = []
+    target_difficulty=8
 
     def add_step(self, coordinates):
 
@@ -36,6 +44,27 @@ class MineSweepingPath():
                     return x, y
         return None
 
+    def next_step(self):
+        current_difficulty = self.difficulties[self.current_step % len(self.difficulties)] + self.difficulty_budget
+        next_steps = self.generate_next_possibilities(current_difficulty)
+        if len(next_steps) > 1:
+            choice = randint(0, len(next_steps) - 1)
+            selected_difficulty, next_possibility = next_steps[choice]
+        else:
+            selected_difficulty, next_possibility = next_steps[0]
+        if selected_difficulty != current_difficulty:
+            self.difficulty_budget += round(selected_difficulty - current_difficulty, 2)
+        self.budgets.append(self.difficulty_budget)
+        budget_mean = mean(self.budgets)
+        #if budget_mean < - 0.05 or budget_mean > 0.05:
+        #    self.difficulty_budget -= budget_mean
+        if self.current_step%5==0:
+            diff_sum = sum(path.difficulties[-5:])
+            self.difficulty_budget += self.target_difficulty-diff_sum
+        self.add_step(next_possibility)
+        self.current_step += 1
+        return next_possibility
+
     def generate_next_possibilities(self, difficulty):
         exact_possibilities = []
         all_possibilities = []
@@ -45,12 +74,13 @@ class MineSweepingPath():
             for y in range(0, 4):
                 possible_difficulty = self.get_difficulty((x, y))
                 difference = abs(difficulty - possible_difficulty)
-                if difference == 0:
-                    exact_possibilities.append((possible_difficulty, (x, y)))
-                if difference < min_difference:
-                    min_difference = difference
-                    candidate = (possible_difficulty, (x, y))
-                all_possibilities.append((possible_difficulty, (x, y)))
+                if (x, y) not in self.path[-5:]:
+                    if difference == 0:
+                        exact_possibilities.append((possible_difficulty, (x, y)))
+                    if difference < min_difference:
+                        min_difference = difference
+                        candidate = (possible_difficulty, (x, y))
+                    all_possibilities.append((possible_difficulty, (x, y)))
         if len(exact_possibilities) == 0:
             return [candidate]
         else:
@@ -109,4 +139,24 @@ if __name__ == '__main__':
     # path.add_step((0, 0))
     # print(path)
     # main()
-    main()
+
+    for k in range(5):
+        path = MineSweepingPath()
+        sums = []
+        for g in range(1000):
+            path.next_step()
+            # print(str(g) + "\t " + str(path.totalDifficulty) + "\t " + str(path.difficulty_budget) + "\t " + str(path.path))
+        for i in range(0,len(path.difficulties),5):
+            diff_sum = sum(path.difficulties[i:i+4])
+            #print(str(i) + " sum=" + str(diff_sum))
+            sums.append(diff_sum)
+
+        plt.plot(sums)
+        plt.title('1000 budgets run#' + str(k) + " Total Difficulty: " + str(path.totalDifficulty))
+        plt.ylabel("Sum of 5 step value")
+        plt.savefig("difftot_run#" + str(k) + ".png")
+        plt.cla()
+        plt.clf()
+        plt.close(plt.figure())
+        print("#" + str(k) + str(mean(sums)))
+#    main()

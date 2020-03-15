@@ -77,37 +77,24 @@ def main():
 
     grid_position = (50, 50)
     log_position = (400, 200)
-    current_step = 0
-    difficulties = [1.5, 2.15, 2.85, 1.5]
-    difficulty_budget = 0
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
-                print("testing difficulty" + str(difficulties[current_step % len(difficulties)]))
-                current_difficulty = difficulties[current_step % len(difficulties)] + difficulty_budget
-                next_steps = path.generate_next_possibilities(current_difficulty)
-
-                if len(next_steps)>1:
-                    choice = randint(0, len(next_steps) - 1)
-                    selected_difficulty, next_possibility = next_steps[choice]
-                else:
-                    selected_difficulty, next_possibility = next_steps[0]
-                if selected_difficulty != current_difficulty:
-                     difficulty_budget += round(selected_difficulty-current_difficulty, 2)
-
-                path.add_step(next_possibility)
-                current_step += 1
-                x, y = next_possibility
+                x, y = path.next_step()
                 reset_grid(grid)
                 grid[x][y] = 1
 
         # Draw the grid
         refresh_grid(grid, grid_surface, screen, grid_position)
-        print_log(path,difficulty_budget, font, screen, log_position)
+        print_log(path, font, screen, log_position)
         pygame.display.flip()
     pygame.quit()
+
+
+
 
 
 def reset_grid(grid):
@@ -116,13 +103,13 @@ def reset_grid(grid):
             grid[x][y] = 0
 
 
-def print_log(path,difficulty_budget, font, log_screen, log_position):
+def print_log(path, font, log_screen, log_position):
     if (len(path.difficulties) > 0):
         log = "DIFFICULTY: " + str(path.difficulties[-1]) + "\n" + " ORIENTATION: " + \
               str(round(path.current_orientation, 2)) + " \n"
     else:
         log = "DIFFICULTY: n/a \n" + " ORIENTATION: " + str(path.current_orientation) + " \n"
-    log += "BUDGET: " + str(round(difficulty_budget,2))
+    log += "BUDGET: " + str(round(path.difficulty_budget,2))
     blit_text(log_screen, log, log_position, font)
 
 
