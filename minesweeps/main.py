@@ -92,9 +92,9 @@ def main():
             if event.type == pygame.KEYDOWN:
                 next_block=True
         if button_pressed and GPIO.input(4)==GPIO.LOW:
-            next_block=True
             button_pressed=False
         if not button_pressed and GPIO.input(4)==GPIO.HIGH:
+            next_block = True
             button_pressed=True
         if next_block:
             print("next block!")
