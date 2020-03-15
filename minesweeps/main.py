@@ -9,19 +9,13 @@ import RPi.GPIO as GPIO
 
 
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(7, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-def go_button_pressed(channel):
-    if GPIO.input(7): # and check again the input
-        print("Pressed!")
-        newevent = pygame.event.Event(pygame.locals.KEYDOWN, unicode="a", key=pygame.locals.K_a,
-                                      mod=pygame.locals.KMOD_NONE)  # create the event
-        pygame.event.post(newevent)  # add the event to the queue
-        # stop detection for 20 sec
-        GPIO.remove_event_detect(7)
-        GPIO.add_event_detect(7, GPIO.RISING, callback=go_button_pressed, bouncetime=300)
 
+
+
+def gpio_setup():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(7, GPIO.IN, GPIO.PUD_DOWN)
 
 
 
@@ -95,17 +89,20 @@ def main():
 
     grid_position = (50, 50)
     log_position = (400, 200)
-    GPIO.add_event_detect(7, GPIO.RISING, callback=my_callback, bouncetime=300)
 
     while running:
+
+        next_block=False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN:
-                x, y = path.next_step()
-                reset_grid(grid)
-                grid[x][y] = 1
-
+            if event.type == pygame.KEYDOWN
+                next_block=True
+        if next_block or GPIO.input(7):
+            print("next block!")
+            x, y = path.next_step()
+            reset_grid(grid)
+            grid[x][y] = 1
         # Draw the grid
         refresh_grid(grid, grid_surface, screen, grid_position)
         print_log(path, font, screen, log_position)
