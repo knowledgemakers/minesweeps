@@ -6,18 +6,9 @@ import pygame
 import RPi.GPIO as GPIO
 
 
-
-
-
-
-
-
-
 def gpio_setup():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(7, GPIO.IN, GPIO.PUD_DOWN)
-
-
 
 def generate_paths(current_path):
     paths = []
@@ -91,6 +82,7 @@ def main():
 
     grid_position = (50, 50)
     log_position = (400, 200)
+    button_pressed = False
     while running:
 
         next_block=False
@@ -99,6 +91,10 @@ def main():
                 running = False
             if event.type == pygame.KEYDOWN:
                 next_block=True
+        if button_pressed and GPIO.input(7)==GPIO.LOW:
+            next_block=True
+        if not button_pressed and GPIO.input(7)==GPIO.HIGH:
+            button_pressed=True
         if next_block or GPIO.input(7):
             print("next block!")
             x, y = path.next_step()
